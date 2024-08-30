@@ -32,11 +32,10 @@ CREATE TABLE products_temp (
 CREATE TABLE cart (
     ID INTEGER PRIMARY KEY AUTOINCREMENT, 
     user_id INTEGER, 
-    product_id INTEGER,
     status TEXT CHECK(status IN ('ACTIVE', 'CHECKOUT')),
     created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
     FOREIGN KEY(user_id) REFERENCES users(ID),
-    FOREIGN KEY(product_id) REFERENCES products(ID)
+    UNIQUE(user_id, status)
 );
 
 -- Cart Items table
@@ -50,7 +49,8 @@ CREATE TABLE cart_items (
     UNIQUE(cart_id, product_id)
 );
 
--- Load data from CSV files (assuming headers match column names)
+
+------ Load data from CSV files (assuming headers match column names)
 .mode csv
 .import users.csv users_temp
 insert into users (name, age, email, password) select * from users_temp;
