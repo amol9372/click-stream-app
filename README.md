@@ -3,6 +3,11 @@
 ## Introduction
 This is a clickstream app based on Nodejs, *Sqlite* & Apache Kafka. The app records events like `add to cart`, `delete item from cart` etc. We have docker-compose to run the application locally.
 
+## Application Architecture
+
+<img width="1070" alt="Screenshot 2024-09-03 at 12 04 43 PM" src="https://github.com/user-attachments/assets/ccf1736c-55a3-4d29-9264-9f17e3ff7d95">
+
+
 ## Features
 
 1. Click streaming for multiple apis
@@ -27,6 +32,7 @@ https://www.postman.com/galactic-eclipse-361945/workspace/raptor9372/collection/
 ```
 ## Database ERD
 
+<img width="1204" alt="Screenshot 2024-09-03 at 11 51 14 AM" src="https://github.com/user-attachments/assets/fa2c1642-323c-4c3e-9aa6-fd407d4073b8">
 
 ## API Endpoints
 
@@ -75,6 +81,9 @@ The postman collection has variables for `token` & `base-url` to facilitate api 
 ### How to place an order
 
 In order to place an order hit the APIs in below order:
+
+<img width="1290" alt="Screenshot 2024-09-03 at 12 57 53 PM" src="https://github.com/user-attachments/assets/d4b9ae21-3b84-4c34-a686-cfed8a24f546">
+
 
 ### insert image here
 
