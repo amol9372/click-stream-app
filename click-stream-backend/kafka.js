@@ -18,12 +18,12 @@ const config = loadProperties("./client.properties");
 const kafka = new Kafka({
   // clientId: config['client.id'],
   brokers: config["bootstrap.servers"].split(","),
-  ssl: config["security.protocol"] === "SASL_SSL",
-  sasl: {
-    mechanism: config["sasl.mechanisms"].toLowerCase(), // 'plain', 'scram-sha-256', or 'scram-sha-512'
-    username: config["sasl.username"],
-    password: config["sasl.password"],
-  },
+  // ssl: config["security.protocol"] === "SASL_SSL",
+  // sasl: {
+  //   mechanism: config["sasl.mechanisms"].toLowerCase(), // 'plain', 'scram-sha-256', or 'scram-sha-512'
+  //   username: config["sasl.username"],
+  //   password: config["sasl.password"],
+  // },
 });
 
 const customPartitioner = ({ topic, partitionMetadata, message }) => {

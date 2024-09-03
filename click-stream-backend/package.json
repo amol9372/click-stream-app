@@ -20,7 +20,7 @@
     "jsonwebtoken": "^9.0.2",
     "kafkajs": "^2.2.4",
     "node-cron": "^3.0.3",
-    "sqlite3": "^5.1.7",
+    "sqlite3": "5.1.7",
     "winston": "^3.14.2"
   },
   "devDependencies": {

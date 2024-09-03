@@ -7,15 +7,15 @@ import { CART_TOPIC } from "./utils/constants.js";
 const db = DB.getConnection();
 
 export const resetCartStatus = () => {
-  schedule("* * * * *", async () => {
+  schedule("*/5 * * * *", async () => {
     try {
       logger.info(
-        "Running cron job - checking checkout status expiry within 3 minutes"
+        "Running cron job - checking checkout status expiry within 5 minutes"
       );
 
       // 1. Fetch carts that have been in 'CHECKOUT' status for over 3 minutes
       const expirationTime = new Date();
-      expirationTime.setMinutes(expirationTime.getMinutes() - 3); // 3 minutes ago
+      expirationTime.setMinutes(expirationTime.getMinutes() - 15); // 3 minutes ago
       const formattedDate = expirationTime
         .toUTCString("en-CA", {
           year: "numeric",

@@ -2,6 +2,7 @@ import express from "express";
 import CartApi from "./routes/cartApi.js";
 import UsersApi from "./routes/usersApi.js";
 import AuthApi from "./routes/authApi.js";
+import OrdersApi from "./routes/ordersApi.js";
 import cors from "cors";
 import DB from "./db.js";
 import { authenticateToken } from "./utils/jwt.js";
@@ -25,10 +26,11 @@ const startServer = async () => {
 
   // API Routes
   app.use("/api/users", UsersApi);
-  app.use("/public", AuthApi), app.use("/api/cart", CartApi);
+  app.use("/public", AuthApi);
+  app.use("/api/cart", CartApi);
+  app.use("/api/orders", OrdersApi);
 
   app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
     logger.info(`Server listening on port ${port}`);
   });
 };

@@ -11,28 +11,35 @@ const db = DB.getConnection();
 router.post("/add", async (req, res) => {
   const { productId, quantity } = req.body;
 
-  if (!productId || !quantity) {
-    logger.error("product and quantity are required");
-    return res.status(400).json({ error: "product and quantity are required" });
-  }
-
-  const user = await getUser(req.user.userId);
-
-  if (!user) {
-    logger.error("invalid user", req.user.userId);
-    return res.status(401).json({ error: "Invalid user" });
-  }
-
-  // Step 1: Check if the user has an active cart
-  let cartId = await getActiveCart(user.ID);
-
-  // Step 2: If no active cart exists, create one
-  if (!cartId) {
-    cartId = await createCart(user.ID);
-  }
-
-  // Step 3: Add the product to the cart items
   try {
+    if (!productId || !quantity) {
+      logger.error("product and quantity are required");
+      return res
+        .status(400)
+        .json({ error: "product and quantity are required" });
+    }
+
+    const user = await getUser(req.user.userId);
+    logger.info(user);
+
+    if (!user) {
+      logger.error("invalid user", req.user.userId);
+      return res.status(401).json({ error: "Invalid user" });
+    }
+
+    // Step 1: Check if the user has an active cart
+    let cartId = await getActiveCart(user.ID);
+
+    logger.info(cartId);
+
+    // Step 2: If no active cart exists, create one
+    if (!cartId) {
+      cartId = await createCart(user.ID);
+      logger.info(cartId);
+    }
+
+    // Step 3: Add the product to the cart items
+
     await addItemToCart(cartId, productId, quantity);
     logger.info("Product added to cart successfully", cartId);
 
@@ -43,7 +50,9 @@ router.post("/add", async (req, res) => {
 
     publishKafkaMessage(CART_TOPIC, event).catch((err) => logger.error(err));
 
-    res.status(201).json({ message: "Product added to cart successfully" });
+    res
+      .status(201)
+      .json({ message: "Product added to cart successfully", cartId: cartId });
   } catch (err) {
     logger.error(err.error || "An error occurred");
     res
@@ -115,6 +124,63 @@ router.post("/checkout/:cartId", async (req, res) => {
       .json({ message: err.error || "An error occurred during checkout" });
   }
 });
+
+router.get("/", async (req, res) => {
+  try {
+    const cart = await getActiveCart(req.user.userId);
+
+    if (!cart) {
+      logger.error(`"No active cart exists for userId ::: ${req.user.userId}"`);
+      return res.status(422).json({
+        error: `"No active cart exists for userId ::: ${req.user.userId}"`,
+      });
+    }
+
+    const cartItems = await getCartItems(cart);
+
+    const responseData = {
+      cartId: cart.ID,
+      items: cartItems.map((item) => ({
+        id: item.id,
+        name: item.Name,
+        category: item.Category,
+        cost: item.Cost,
+        quantity: item.quantity,
+      })),
+      totalAmount: cartItems.reduce((accumulator, item) => {
+        return accumulator + item.Cost * item.quantity;
+      }, 0),
+    };
+
+    res.status(200).json(responseData);
+  } catch (err) {
+    logger.error(err.error || "An error occurred while fetching order items");
+    res.status(err.status || 500).json({
+      message: err.error || "An error occurred while fetching order items",
+    });
+  }
+});
+
+function getCartItems(cartId) {
+  return new Promise((resolve, reject) => {
+    const query = `
+        SELECT ci.ID, p.Name, p.Category, p.Cost, ci.quantity
+        FROM cart_items ci
+        JOIN products p ON ci.product_id = p.ID
+        WHERE ci.cart_id = ?
+      `;
+
+    db.all(query, [cartId], (err, rows) => {
+      if (err) {
+        return reject({
+          status: 500,
+          error: "Database error while fetching cart items",
+        });
+      }
+      resolve(rows);
+    });
+  });
+}
 
 // Helper functions
 function checkCartOwnership(cartId, userId) {
@@ -192,12 +258,12 @@ function deleteCartItem(cartItemId) {
 // Function to create a new cart for the user
 function createCart(userId) {
   return new Promise((resolve, reject) => {
-    const query = 'INSERT INTO cart (user_id, status) VALUES (?, "ACTIVE")';
+    const query = `INSERT INTO cart (user_id, status) VALUES (?, 'ACTIVE');`;
     db.run(query, [userId], function (err) {
       if (err) {
         return reject({
           status: 500,
-          error: "Database error while creating cart",
+          error: `"Database error while creating cart ${err}"`,
         });
       }
       resolve(this.lastID); // Return the ID of the newly created cart
