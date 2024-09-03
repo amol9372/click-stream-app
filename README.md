@@ -85,8 +85,6 @@ In order to place an order hit the APIs in below order:
 <img width="1290" alt="Screenshot 2024-09-03 at 12 57 53 PM" src="https://github.com/user-attachments/assets/d4b9ae21-3b84-4c34-a686-cfed8a24f546">
 
 
-### insert image here
-
 ## Kafka 
 
 Make sure you have installed `kafka cli tools` in your local system. 
